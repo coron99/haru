@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myproject.mapper.BoardMapper">
+	<insert id="insert">
+		INSERT INTO MY_BOARD 
+		(BNO, TITLE, CONTENT, WRITER) 
+		VALUES(SEQ_MY_BOARD.NEXTVAL, #{title}, #{content}, #{writer})
+	</insert>
+	
+	<select id="list" resultType="com.myproject.vo.BoardVO">
+		SELECT BNO, TITLE, WRITER FROM 
+		(SELECT /*+ INDEX_DESC(MY_BOARD PK_MY_BOARD) */ ROWNUM RN, BNO, TITLE, CONTENT, WRITER, REGDATE, UPDATEDATE  
+		FROM MY_BOARD WHERE REMOVE = 0  
+		<![CDATA[
+		AND ROWNUM <= (#{pageNum} * #{pageAmount})) 
+		WHERE RN > ((#{pageNum} - 1) * #{pageAmount})
+		]]>
+	</select>
+	
+	<select id="getTotal" resultType="_int">
+		SELECT COUNT(BNO) FROM MY_BOARD
+	</select>
+	<select id="view" resultType="com.myproject.vo.BoardVO">
+		SELECT BNO, TITLE, CONTENT, WRITER, REGDATE, UPDATEDATE 
+		FROM MY_BOARD WHERE BNO = #{bno}
+	</select>
+	
+	<update id="modify">
+		UPDATE MY_BOARD SET TITLE = #{title}, CONTENT = #{content} 
+		WHERE BNO = #{bno}
+	</update>
+	
+	<update id="delete">
+		UPDATE MY_BOARD SET REMOVE = 1 
+		WHERE BNO = #{bno}
+	</update>
+</mapper>
